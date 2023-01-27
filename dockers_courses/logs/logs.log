@@ -1,0 +1,16 @@
+INFO - 2023-01-27 08:30:14 - __main__ - <module> -: Start Process
+INFO - 2023-01-27 08:30:14 - __main__ - main -: Get Monthly  Data
+INFO - 2023-01-27 08:30:19 - __main__ - main -: Get Weekly  Data
+INFO - 2023-01-27 08:30:27 - __main__ - main -: Get Courses Data
+INFO - 2023-01-27 08:31:04 - __main__ - <module> -: Start Process
+INFO - 2023-01-27 08:31:04 - __main__ - main -: Get Monthly  Data
+INFO - 2023-01-27 08:31:07 - __main__ - main -: Get Weekly  Data
+INFO - 2023-01-27 08:31:15 - __main__ - main -: Get Courses Data
+INFO - 2023-01-27 08:32:49 - __main__ - <module> -: Start Process
+INFO - 2023-01-27 08:32:49 - __main__ - main -: Get Monthly  Data
+INFO - 2023-01-27 08:32:55 - __main__ - main -: Get Weekly  Data
+INFO - 2023-01-27 08:33:03 - __main__ - main -: Get Courses Data
+INFO - 2023-01-27 08:33:04 - __main__ - main -: Compose Stats Data
+INFO - 2023-01-27 08:33:04 - __main__ - main -: Get Ready Stats Analitys Table
+INFO - 2023-01-27 08:33:05 - __main__ - main -: Insert Data
+INFO - 2023-01-27 08:33:17 - __main__ - <module> -: Process Finished Successfully
