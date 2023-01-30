@@ -15,7 +15,7 @@ HOST_MYSQL = os.getenv("HOST_MYSQL")
 HOST_PSQL = os.getenv("HOST_PSQL")
 PASS_MYSQL =  os.getenv("PASS_MYSQL")
 PASS_PSQL = os.getenv("PASS_PSQL")
-
+DB_MYSQL =  os.getenv("DB_MYSQL")
 
 def run_query(query='', database="", engine="mysql"):
     if database != "":
@@ -102,7 +102,7 @@ def get_user_data():
             "enrol_user_modifierid", "enrol_user_timecreated", "enrol_user_timemodified", "enrol_enrol", "enrol_status",
             "enrol_courseid", "enrol_name", "enrol_period", "enrol_startdate", "enrol_enddate", "enrol_roleid", "role_name"]
     
-    users = pd.DataFrame(run_query(query_users, "moodle"), columns=user_columns, dtype='str')
+    users = pd.DataFrame(run_query(query_users, DB_MYSQL), columns=user_columns, dtype='str')
     users  = users.fillna({"role_name":"no_enroled", "enrol_courseid":"0"})
     users["enrol_courseid"] = users["enrol_courseid"].astype(float).astype(int)
 

@@ -17,7 +17,7 @@ HOST_MYSQL = os.getenv("HOST_MYSQL")
 HOST_PSQL = os.getenv("HOST_PSQL")
 PASS_MYSQL =  os.getenv("PASS_MYSQL")
 PASS_PSQL = os.getenv("PASS_PSQL")
-
+DB_MYSQL =  os.getenv("DB_MYSQL")
 
 def run_query(query='', database="", engine="mysql"):
     if database != "":
@@ -66,7 +66,7 @@ def get_stats(type_stat, stats_table):
                             from {stats_table}\
                             where timeend>{time_now}\
                             group by 1, 2, 3"
-    data_stats = pd.DataFrame(run_query(query_stats, "moodle"), columns=["courseid", "timeend", "stattype", "total_users", "statsreads", "statswrites"])
+    data_stats = pd.DataFrame(run_query(query_stats, DB_MYSQL), columns=["courseid", "timeend", "stattype", "total_users", "statsreads", "statswrites"])
     data_stats["type_stat"]  = type_stat
     return data_stats
 
