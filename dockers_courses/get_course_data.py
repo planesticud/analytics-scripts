@@ -3,8 +3,6 @@ import logging
 import logging.config
 import yaml
 import pandas as pd
-import calendar
-from datetime import  timedelta, date
 import mysql.connector
 import psycopg2
 from sqlalchemy import create_engine
@@ -55,73 +53,89 @@ def run_query(query='', database="", engine="mysql"):
     conn.close()
     return data
 
+def get_len(serie):
+    return len(serie)
+def get_levels(df):
+    for i in range(1,df['lenght']-1):
+        df[f'lvl_{i}'] = int(df['lvl'][i])
+    return df
 
-def get_stats(type_stat, stats_table):
-    time_now = calendar.timegm((date.today()-timedelta(days=180)).timetuple())
-    query_stats = f"select courseid,\
-                            timeend,\
-                            stattype,\
-                            count(userid) total_users,\
-                            sum(statsreads) as statsreads,\
-                            sum(statswrites) as statswrites\
-                            from {stats_table}\
-                            where timeend>{time_now}\
-                            group by 1, 2, 3"
-    data_stats = pd.DataFrame(run_query(query_stats, DB_MYSQL), columns=["courseid", "timeend", "stattype", "total_users", "statsreads", "statswrites"])
-    data_stats["type_stat"]  = type_stat
-    return data_stats
+def get_categories():
+    category_table_name = "mdl_course_categories"
+    category_columns = list((pd.DataFrame(run_query(f"SELECT *\
+                                                FROM INFORMATION_SCHEMA.COLUMNS\
+                                                WHERE TABLE_NAME = N'{category_table_name}'\
+                                                ORDER BY ORDINAL_POSITION")))[3])
+
+    categories  = pd.DataFrame(run_query(f"SELECT * FROM {category_table_name}", "moodle"), columns=category_columns)
+
+    categ_lvl_1 =  categories.copy()
+    categories['lvl'] = categories['path'].str.split('/') 
+    categories['lenght'] = categories['lvl'].apply(lambda x: len(x))
+    for i in range(1,categories['lenght'].max()-1):
+        categories[f'lvl_{i}'] ='' 
+    categories = categories.apply(get_levels,axis=1)
+    categories = pd.merge(categories,categ_lvl_1[['id','name']],left_on=['lvl_1'],right_on=['id'],how='left')
+    categories = pd.merge(categories,categ_lvl_1[['id','name']],left_on=['lvl_2'],right_on=['id'],how='left')
+    categories =  categories.rename(columns={'id_x':'categoryid','name_x':'category_name','name_y':'category_lvl1','name':'category_lvl2', "visible":"category_visible"})
+    categories.drop(columns=['id_y', 'id','sortorder','visibleold','theme'],inplace=True)
+    return categories
+
+
 
 def get_courses():
-    course_query = f"select id, shortname, category_lvl1 from courses_planestic_analytics "
-    courses = pd.DataFrame(run_query(course_query, "aulasmetricas", "psql"), columns=["id", "course_name", "main_category"])
-    courses['id'] = courses['id'].astype(int)
+    course_table_name = "mdl_course"
+    course_columns = list((pd.DataFrame(run_query(f"SELECT *\
+                                                FROM INFORMATION_SCHEMA.COLUMNS\
+                                                WHERE TABLE_NAME = N'{course_table_name}'\
+                                                ORDER BY ORDINAL_POSITION")))[3])
+
+    courses  = pd.DataFrame(run_query(f"SELECT * FROM {course_table_name}", "moodle"), columns=course_columns)
     return courses
 
-def complement_stats(data_stats_month, data_stats_week, courses):
-    data_stats_ok = pd.concat([data_stats_month,data_stats_week])
+def complement_courses(courses, categories):
+    courses = pd.merge(courses,categories[['categoryid','category_name','lvl_1','lvl_2','category_lvl1','category_lvl2',"depth", "parent", "path", "lenght", "category_visible"]],left_on="category", right_on= 'categoryid',how='left')
 
-    data_stats_merge = pd.merge(data_stats_ok, courses, left_on="courseid", right_on='id', how="left")
-    data_stats_merge.sort_values(["statsreads", "statsreads"])
-    for dates in ['timeend']:
-        data_stats_merge[dates] =  pd.to_datetime(data_stats_merge[dates],unit='s')
-    return data_stats_merge
+    # courses.to_csv("data/courses_fitted.csv",sep='|',index=False)
+    for dates in ['timecreated', 'timemodified', 'startdate', 'enddate']:
+        courses[dates] =  pd.to_datetime(courses[dates],unit='s')
+    courses.drop(columns=['summary', 'summaryformat', "relativedatesmode"],inplace=True)
+    return courses
 
-def compose_table(data_stats_merge, new_db_name):
+def compose_table(courses, new_db_name):
     run_query(f"DROP TABLE IF EXISTS {new_db_name}", "aulasmetricas", "psql")
+
     columns_str = ""
-    for col in data_stats_merge.columns:
-        if "time" in col:
+    for col in courses.columns:
+        if "time" in col or "date" in col:
             columns_str += f"{col} TIMESTAMP, "
-        elif col in ["total_users",     "statsreads", "statswrites"]:
-            columns_str += f"{col} bigint, "
         else:
             columns_str += f"{col} VARCHAR, "
 
-    run_query(F"CREATE TABLE {new_db_name}\
-                ({columns_str[:-2]})",  "aulasmetricas", "psql")
+    run_query(f"""CREATE TABLE {new_db_name}\
+            ({columns_str[:-2]})""", "aulasmetricas", "psql")
 
-def insert_courses_data(data_stats_merge, new_db_name):
+
+def insert_courses_data(courses, new_db_name):
     engine = create_engine("postgresql+psycopg2://{user}:{pw}@{host}/{db}"
                        .format(user=USER_PSQL,
                                pw=PASS_PSQL,
                                host=HOST_PSQL,
                                db="aulasmetricas"))
 
-    data_stats_merge.to_sql(f'{new_db_name}', con = engine, if_exists = 'append', chunksize = 1000, index=False, schema="aulasschema")
+    courses.to_sql(new_db_name, con = engine, if_exists = 'append', chunksize = 1000, index=False, schema="aulasschema")
 
 def main():
-    logger.info("Get Monthly  Data")
-    stats_month = get_stats(type_stat="monthly", stats_table="mdl_stats_user_monthly")
-    logger.info("Get Weekly  Data")
-    stats_week = get_stats(type_stat="weekly", stats_table="mdl_stats_user_weekly")
+    logger.info("Get Categories  Data")
+    categories = get_categories()
     logger.info("Get Courses Data")
     courses = get_courses()
-    logger.info("Compose Stats Data")
-    stats_complete = complement_stats(stats_month, stats_week, courses)   
-    logger.info("Get Ready Stats Analitys Table")
-    compose_table(stats_complete, "stats_planestic_analytics")
+    logger.info("Compose Courses Data")
+    courses_complete = complement_courses(courses, categories)   
+    logger.info("Get Ready Courses Analitys Table")
+    compose_table(courses_complete, "courses_planestic_analytics")
     logger.info("Insert Data")
-    insert_courses_data(stats_complete, "stats_planestic_analytics")
+    insert_courses_data(courses_complete, "courses_planestic_analytics")
 
 if __name__ == "__main__":
     with open('config/logging.yaml', 'r') as f:
