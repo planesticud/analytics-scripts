@@ -64,7 +64,8 @@ def get_categories():
     category_table_name = "mdl_course_categories"
     category_columns = list((pd.DataFrame(run_query(f"SELECT *\
                                                 FROM INFORMATION_SCHEMA.COLUMNS\
-                                                WHERE TABLE_NAME = N'{category_table_name}'\
+                                                WHERE TABLE_SCHEMA ='{DB_MYSQL}' and \
+                                                TABLE_NAME = N'{category_table_name}'\
                                                 ORDER BY ORDINAL_POSITION")))[3])
 
     categories  = pd.DataFrame(run_query(f"SELECT * FROM {category_table_name}", DB_MYSQL), columns=category_columns)
@@ -87,9 +88,10 @@ def get_courses():
     course_table_name = "mdl_course"
     course_columns = list((pd.DataFrame(run_query(f"SELECT *\
                                                 FROM INFORMATION_SCHEMA.COLUMNS\
-                                                WHERE TABLE_NAME = N'{course_table_name}'\
+                                                WHERE TABLE_SCHEMA ='{DB_MYSQL}' and \
+                                                TABLE_NAME = N'{course_table_name}'\
                                                 ORDER BY ORDINAL_POSITION")))[3])
-
+    logger.info(len(course_columns))
     courses  = pd.DataFrame(run_query(f"SELECT * FROM {course_table_name}", DB_MYSQL), columns=course_columns)
     return courses
 
