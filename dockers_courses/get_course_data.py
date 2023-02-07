@@ -67,7 +67,7 @@ def get_categories():
                                                 WHERE TABLE_NAME = N'{category_table_name}'\
                                                 ORDER BY ORDINAL_POSITION")))[3])
 
-    categories  = pd.DataFrame(run_query(f"SELECT * FROM {category_table_name}", "moodle"), columns=category_columns)
+    categories  = pd.DataFrame(run_query(f"SELECT * FROM {category_table_name}", DB_MYSQL), columns=category_columns)
 
     categ_lvl_1 =  categories.copy()
     categories['lvl'] = categories['path'].str.split('/') 
@@ -90,7 +90,7 @@ def get_courses():
                                                 WHERE TABLE_NAME = N'{course_table_name}'\
                                                 ORDER BY ORDINAL_POSITION")))[3])
 
-    courses  = pd.DataFrame(run_query(f"SELECT * FROM {course_table_name}", "moodle"), columns=course_columns)
+    courses  = pd.DataFrame(run_query(f"SELECT * FROM {course_table_name}", DB_MYSQL), columns=course_columns)
     return courses
 
 def complement_courses(courses, categories):
