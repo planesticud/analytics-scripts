@@ -62,3 +62,11 @@ INFO - 2023-02-06 22:14:37 - __main__ - main -: Compose Courses Data
 INFO - 2023-02-06 22:14:37 - __main__ - main -: Get Ready Courses Analitys Table
 INFO - 2023-02-06 22:14:39 - __main__ - main -: Insert Data
 INFO - 2023-02-06 22:14:43 - __main__ - <module> -: Process Finished Successfully
+INFO - 2023-02-06 22:22:06 - __main__ - <module> -: Start Process
+INFO - 2023-02-06 22:22:06 - __main__ - main -: Get Categories  Data
+INFO - 2023-02-06 22:22:08 - __main__ - main -: Get Courses Data
+INFO - 2023-02-06 22:22:08 - __main__ - get_courses -: 34
+INFO - 2023-02-06 22:22:10 - __main__ - main -: Compose Courses Data
+INFO - 2023-02-06 22:22:10 - __main__ - main -: Get Ready Courses Analitys Table
+INFO - 2023-02-06 22:22:11 - __main__ - main -: Insert Data
+INFO - 2023-02-06 22:22:15 - __main__ - <module> -: Process Finished Successfully

@@ -109,7 +109,7 @@ def compose_table(courses, new_db_name):
 
     columns_str = ""
     for col in courses.columns:
-        if "time" in col or "date" in col:
+        if ("time" in col or "date" in col) and col!="showactivitydates":
             columns_str += f"{col} TIMESTAMP, "
         else:
             columns_str += f"{col} VARCHAR, "
