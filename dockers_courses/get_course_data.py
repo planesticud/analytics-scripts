@@ -29,8 +29,8 @@ def run_query(query='', database="", engine="mysql"):
                                 port=5432, database=database, options="-c search_path=dbo,aulasschema")
     else:
         if engine=="mysql":
-            conn =  mysql.connector.connect(user='root', password='example',
-                              host='drone.planestic.udistrital.edu.co' )   
+            conn =  mysql.connector.connect(user=USER_MYSQL, password=PASS_MYSQL,
+                              host=HOST_MYSQL )   
         elif engine=="psql":
             print("Postgresql debe tener asignada una base de datos")
     if engine=="psql":
