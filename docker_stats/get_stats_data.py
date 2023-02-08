@@ -71,8 +71,8 @@ def get_stats(type_stat, stats_table):
     return data_stats
 
 def get_courses():
-    course_query = f"select id, fullname, category_lvl1 from courses_planestic_analytics "
-    courses = pd.DataFrame(run_query(course_query, "aulasmetricas", "psql"), columns=["id", "course_name", "main_category"])
+    course_query = f"select id, fullname, category_lvl1, category_lvl2 from courses_planestic_analytics "
+    courses = pd.DataFrame(run_query(course_query, "aulasmetricas", "psql"), columns=["id", "course_name", "principal_category","main_category"])
     courses['id'] = courses['id'].astype(int)
     return courses
 
