@@ -73,7 +73,7 @@ def get_bbb_data():
                     userid\
                     FROM mdl_logstore_standard_log\
                     where component = 'mod_bigbluebuttonbn'"
-    data_bbb = pd.DataFrame(run_query(query_stats, DB_MYSQL), columns=["time", "component", "eventname", "event_context", "action", "origin", "ip_address"])
+    data_bbb = pd.DataFrame(run_query(query_stats, DB_MYSQL), columns=["time", "component", "eventname", "event_context", "action", "origin", "ip_address", "course_id", "user_id"])
     return data_bbb
 
 
