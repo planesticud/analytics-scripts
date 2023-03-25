@@ -55,7 +55,7 @@ def run_query(query='', database="", engine="mysql"):
 
 def get_bbb_data():
     query_stats = f"SELECT\
-                    FROM_UNIXTIME(timecreated,'%Y-%m-%d %H:%i:%s') AS time\
+                    FROM_UNIXTIME(timecreated,'%Y-%m-%d %H:%i:%s') AS time,\
                     component,\
                     eventname,\
                     case\
